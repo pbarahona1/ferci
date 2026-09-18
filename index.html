@@ -289,6 +289,10 @@ html,body{margin:0;height:100%;overflow:hidden;overscroll-behavior:none;
 #mute{position:absolute;top:calc(10px + env(safe-area-inset-top,0px));left:10px;z-index:30;
   width:38px;height:38px;border-radius:50%;border:none;background:rgba(255,255,255,.9);
   font-size:16px;cursor:pointer;box-shadow:0 3px 0 rgba(0,0,0,.13);line-height:1;padding:0}
+#back3{position:absolute;top:calc(10px + env(safe-area-inset-top,0px));left:10px;z-index:30;
+  width:38px;height:38px;border-radius:50%;border:none;background:rgba(255,255,255,.9);
+  font-size:18px;font-weight:900;color:#664392;cursor:pointer;box-shadow:0 3px 0 rgba(0,0,0,.13);
+  line-height:1;padding:0}
 
 /* confeti / destellos */
 .spark{position:absolute;pointer-events:none;font-size:24px;z-index:12;
@@ -431,6 +435,7 @@ html,body{margin:0;height:100%;overflow:hidden;overscroll-behavior:none;
 
 <!-- ============ 3 ============ -->
 <section class="scr" id="s3">
+  <button id="back3" aria-label="Volver a elegir masita">←</button>
   <div class="head"><h1 class="mt" id="t3">Alista a tu masita</h1></div>
   <div class="stage3">
     <div id="closet3"><div class="cl-body"></div><div class="cl-door l"></div><div class="cl-door r"></div></div>
@@ -1097,7 +1102,10 @@ function update(dt){
     if(d>140||d<-260) return;
     const cerca = d<130 && d>-150;
     if(!cerca) return;
-    const mismoStar = Math.abs(o.lane-G.laneF)<0.30;   // hay que apuntar con mucha precisión
+    // a partir de la 7ma estrella, apuntar se vuelve mucho más exigente
+    const starPenalty = Math.max(0, G.stars-6);
+    const starTol = Math.max(0.13, 0.30 - starPenalty*0.045);
+    const mismoStar = Math.abs(o.lane-G.laneF)<starTol;   // hay que apuntar con mucha precisión
     const mismo     = Math.abs(o.lane-G.laneF)<0.42;   // el bus es ancho
     if(o.t==='star'&&!o.got){
       if(mismoStar && G.hurt<=0){
@@ -1135,7 +1143,6 @@ function setRecord(n){
 function finish(){
   S.stars=G.stars;
   $('#kid6').src=A['happy_'+S.char.id];
-  $('#capiLogo').src=A.logo;
   $('#finalStars').innerHTML='<span class="ico">⭐</span><span>0</span>';
   $('#prize').innerHTML = G.stars>=CONFIG.META_ESTRELLAS
     ? '🌟 ¡Ganaste un premio especial!'
@@ -1557,6 +1564,11 @@ $('#playAgain').onclick = ()=>{
   $('#m5').classList.remove('on');
   show('s5');
   startRun();
+};
+$('#back3').onclick = ()=>{
+  sfx.tap(); busy3=false;
+  document.querySelectorAll('#grid .card').forEach(c=>c.classList.remove('pick'));
+  show('s2');
 };
 $('#reset').onclick = ()=>{
   sfx.tap(); G.run=false;
