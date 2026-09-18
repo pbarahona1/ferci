@@ -289,7 +289,7 @@ html,body{margin:0;height:100%;overflow:hidden;overscroll-behavior:none;
 #mute{position:absolute;top:calc(10px + env(safe-area-inset-top,0px));left:10px;z-index:30;
   width:38px;height:38px;border-radius:50%;border:none;background:rgba(255,255,255,.9);
   font-size:16px;cursor:pointer;box-shadow:0 3px 0 rgba(0,0,0,.13);line-height:1;padding:0}
-#back3{position:absolute;top:calc(10px + env(safe-area-inset-top,0px));left:56px;z-index:30;
+#back3{position:absolute;top:calc(56px + env(safe-area-inset-top,0px));left:10px;z-index:30;
   width:38px;height:38px;border-radius:50%;border:none;background:rgba(255,255,255,.9);
   font-size:18px;font-weight:900;color:#664392;cursor:pointer;box-shadow:0 3px 0 rgba(0,0,0,.13);
   line-height:1;padding:0}
@@ -958,7 +958,7 @@ function makeLevel(){
   const e=[]; let d=1500, libreAnt=0, dobleAnt=false, ultimaEstrella=null;
   plan.forEach(k=>{
     if(k==='o'){
-      const doble = !dobleAnt && Math.random()<0.60;
+      const doble = !dobleAnt && Math.random()<0.68;
       // la salida debe ser alcanzable desde la salida anterior
       const cand=[-1,0,1].filter(l=>Math.abs(l-libreAnt)<=1);
       const puedeCastigar = ultimaEstrella!==null && cand.includes(ultimaEstrella) && cand.length>1;
@@ -974,7 +974,7 @@ function makeLevel(){
         e.push({t:'obs',d,lane:target,k:Math.floor(Math.random()*4),hit:false});
       }
       libreAnt=libre; dobleAnt=doble; ultimaEstrella=null;
-      d+=rnd(540,690);
+      d+=rnd(460,600);
     } else {
       // estrellas en un carril alcanzable, casi siempre el que luego se bloquea
       const l=pick([-1,0,1].filter(x=>Math.abs(x-libreAnt)<=1));
@@ -989,7 +989,7 @@ function makeLevel(){
 
 function startRun(){
   resize();
-  Object.assign(G,{run:true,t:0,dist:0,speed:830,lane:0,laneF:0,tilt:0,
+  Object.assign(G,{run:true,t:0,dist:0,speed:870,lane:0,laneF:0,tilt:0,
     lives:2,inv:0,stars:0,done:false,fin:0,hurt:0,over:false});
   G.ents=makeLevel();
   G.clouds=Array.from({length:5},()=>({x:rnd(0,cw),y:rnd(ch*.03,ch*.24),s:rnd(.55,1.15)}));
@@ -1089,7 +1089,7 @@ function update(dt){
   if(G.over) return;
   if(G.done){ G.fin+=dt; if(G.fin>2.2){ G.run=false; finish(); } return; }
 
-  G.speed=830+Math.min(550,G.dist/42);
+  G.speed=870+Math.min(620,G.dist/36);
   G.dist+=G.speed*dt;
   const prev=G.laneF;
   G.laneF += (G.lane-G.laneF)*Math.min(1,dt*17);
@@ -1102,11 +1102,11 @@ function update(dt){
     if(d>140||d<-260) return;
     const cerca = d<130 && d>-150;
     if(!cerca) return;
-    // a partir de la 7ma estrella, apuntar se vuelve mucho más exigente
-    const starPenalty = Math.max(0, G.stars-6);
-    const starTol = Math.max(0.13, 0.30 - starPenalty*0.045);
+    // a partir de la 5ta estrella, apuntar se vuelve mucho más exigente
+    const starPenalty = Math.max(0, G.stars-4);
+    const starTol = Math.max(0.09, 0.30 - starPenalty*0.05);
     const mismoStar = Math.abs(o.lane-G.laneF)<starTol;   // hay que apuntar con mucha precisión
-    const mismo     = Math.abs(o.lane-G.laneF)<0.42;   // el bus es ancho
+    const mismo     = Math.abs(o.lane-G.laneF)<0.38;   // el bus es ancho
     if(o.t==='star'&&!o.got){
       if(mismoStar && G.hurt<=0){
         o.got=true; G.stars++; sfx.star();
