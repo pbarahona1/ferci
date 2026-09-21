@@ -459,7 +459,7 @@ html,body{margin:0;height:100%;overflow:hidden;overscroll-behavior:none;
 
 <!-- ============ 4 ============ -->
 <section class="scr" id="s4">
-  <div class="head"><h1 class="mt" style="position:relative;left:3px">Alistá la mochila</h1></div>
+  <div class="head"><h1 class="mt" style="position:relative;left:5px">Alistá la mochila</h1></div>
   <div class="items" id="items"></div>
   <div class="field">
     <div class="counter" id="cnt">Mochila: 0/5</div>
@@ -991,7 +991,8 @@ function makeLevel(){
     }
   });
   G.LEN=d+1500;
-  return e;
+  // seguridad: nunca debe haber un obstáculo pegado a la puerta del CAPI (tramo final limpio)
+  return e.filter(o=> o.t!=='obs' || o.d < G.LEN-1400);
 }
 
 function startRun(){
@@ -1105,16 +1106,26 @@ function update(dt){
   if(G.inv>0) G.inv-=dt;
   if(G.hurt>0) G.hurt-=dt;
 
-  // a partir de la 7ma estrella, aparecen obstáculos extra sorpresa (más densidad, más difícil)
+  // a partir de la 7ma estrella, aparecen obstáculos extra (más densidad, más difícil),
+  // pero SIEMPRE aparecen lejos (se ven venir, tiempo real para reaccionar) y nunca
+  // pegados a la puerta del CAPI (se detienen unos metros antes de la meta).
   if(postSix>0){
     G.extraT-=dt;
     if(G.extraT<=0){
       G.extraT=Math.max(.55, 1.5-postSix*.18);
-      const nExtra = postSix>=3 ? 2 : 1;
-      const lanes=shuffle([-1,0,1]).slice(0,nExtra);
-      lanes.forEach(l=>{
-        G.ents.push({t:'obs',d:G.dist+rnd(560,700),lane:l,k:Math.floor(Math.random()*4),hit:false});
-      });
+      const spawnD = G.dist+rnd(1700,2100);
+      if(spawnD < G.LEN-1400){
+        const nExtra = postSix>=3 ? 2 : 1;
+        // máximo 2 obstáculos por carril cerca uno del otro (nunca 3 seguidos en el mismo carril)
+        const lanesOk=[-1,0,1].filter(l=>{
+          const cerca = G.ents.filter(o=>o.t==='obs'&&o.lane===l&&Math.abs(o.d-spawnD)<900).length;
+          return cerca<2;
+        });
+        const lanes=shuffle(lanesOk).slice(0,nExtra);
+        lanes.forEach(l=>{
+          G.ents.push({t:'obs',d:spawnD,lane:l,k:Math.floor(Math.random()*4),hit:false});
+        });
+      }
     }
   }
 
