@@ -113,8 +113,8 @@ html,body{margin:0;height:100%;overflow:hidden;overscroll-behavior:none;
 #s3 .head{position:relative;padding:0 10px 0 56px;
   min-height:calc(112px + env(safe-area-inset-top,0px));
   display:flex;align-items:center;justify-content:center}
-#s3 .head h1{width:100%;margin:0;text-align:center;font-size:clamp(24px,7vw,34px)}
-#s3 .head h1 .hl{display:inline-block;padding:.14em .5em .18em}
+#s3 .head h1{width:100%;margin:0;text-align:center;font-size:clamp(19px,5.6vw,27px)}
+#s3 .head h1 .hl{display:inline-block;padding:.12em .55em .16em;line-height:1.18}
 #s3 .wood{position:absolute;inset:0;background-size:cover;background-position:center;opacity:.6}
 #s3 .head h1,#s4 .head h1{color:#fff;text-shadow:0 3px 0 rgba(0,0,0,.16)}
 .stage3{position:relative;flex:1;display:flex;align-items:flex-end;justify-content:center;
@@ -459,7 +459,7 @@ html,body{margin:0;height:100%;overflow:hidden;overscroll-behavior:none;
 
 <!-- ============ 4 ============ -->
 <section class="scr" id="s4">
-  <div class="head"><h1 class="mt">Alistá la mochila</h1></div>
+  <div class="head"><h1 class="mt" style="position:relative;left:2px">Alistá la mochila</h1></div>
   <div class="items" id="items"></div>
   <div class="field">
     <div class="counter" id="cnt">Mochila: 0/5</div>
@@ -705,7 +705,7 @@ function choose(c){
 let accSlots=[];
 function buildWardrobe(){
   const c=S.char, n=ACC_N[c.id];
-  $('#t3').innerHTML = `<span class="hl" style="--hlc:${ink(c.col)==='#FFFFFF'?'#E6629E':'#664392'}">Alistá a tu ${c.nom.toLowerCase()}</span>`;
+  $('#t3').innerHTML = `<span class="hl" style="--hlc:${ink(c.col)==='#FFFFFF'?'#E6629E':'#664392'}">Alistá a tu<br>${c.nom.toLowerCase()}</span>`;
 
   const doll=$('#doll');
   doll.className=''; doll.innerHTML='<div class="podium"></div>';
@@ -1096,7 +1096,7 @@ function update(dt){
   if(G.over) return;
   if(G.done){ G.fin+=dt; if(G.fin>2.2){ G.run=false; finish(); } return; }
 
-  G.speed=870+Math.min(620,G.dist/36);
+  G.speed=870+Math.min(620,G.dist/36)+Math.max(0,G.stars-6)*35;
   G.dist+=G.speed*dt;
   const prev=G.laneF;
   G.laneF += (G.lane-G.laneF)*Math.min(1,dt*17);
@@ -1110,8 +1110,9 @@ function update(dt){
     const cerca = d<130 && d>-150;
     if(!cerca) return;
     // a partir de la 5ta estrella, apuntar se vuelve mucho más exigente
-    const starPenalty = Math.max(0, G.stars-4);
-    const starTol = Math.max(0.09, 0.30 - starPenalty*0.05);
+    // hasta la 6ta estrella se mantiene fácil; de ahí en adelante se pone muchísimo más difícil apuntar
+    const starPenalty = Math.max(0, G.stars-6);
+    const starTol = Math.max(0.045, 0.30 - starPenalty*0.13);
     const mismoStar = Math.abs(o.lane-G.laneF)<starTol;   // hay que apuntar con mucha precisión
     const mismo     = Math.abs(o.lane-G.laneF)<0.38;   // el bus es ancho
     if(o.t==='star'&&!o.got){
